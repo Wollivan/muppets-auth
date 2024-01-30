@@ -1,8 +1,10 @@
+import { auth } from "@clerk/nextjs";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
 export default async function SinglePostPage({ params }) {
+  const { userId } = auth();
   const post = await sql`SELECT * FROM posts WHERE id = ${params.postid}`;
   const comments =
     await sql`SELECT * FROM comments where post_id = ${params.postid} ORDER BY id desc`;
@@ -20,7 +22,9 @@ export default async function SinglePostPage({ params }) {
     <div>
       <h2>{post.rows[0].title}</h2>
       <p>{post.rows[0].content}</p>
-      <Link href={`/posts/${params.postid}/edit`}>Edit</Link>
+      {userId === post.rows[0].user_id && (
+        <Link href={`/posts/${params.postid}/edit`}>Edit</Link>
+      )}
 
       <form action={handleAddComment}>
         <h3>Add a comment</h3>
@@ -34,9 +38,14 @@ export default async function SinglePostPage({ params }) {
           <div key={comment.id}>
             <h3>{comment.username}</h3>
             <p>{comment.content}</p>
-            <Link href={`/posts/${params.postid}/comments/${comment.id}/edit `}>
-              Edit
-            </Link>
+
+            {userId === comment.user_id && (
+              <Link
+                href={`/posts/${params.postid}/comments/${comment.id}/edit `}
+              >
+                Edit
+              </Link>
+            )}
           </div>
         );
       })}

@@ -1,3 +1,4 @@
+import { ClerkProvider, UserButton, auth } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
@@ -10,15 +11,21 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const { userId } = auth();
+
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <nav>
-          <Link href="/">Home</Link>
-          <Link href="/posts">Posts</Link>
-        </nav>
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          {userId && <UserButton afterSignOutUrl="/" />}
+          {!userId && <Link href="/sign-in">Sign In</Link>}
+          <nav>
+            <Link href="/">Home</Link>
+            <Link href="/posts">Posts</Link>
+          </nav>
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

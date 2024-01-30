@@ -1,9 +1,11 @@
+import { auth } from "@clerk/nextjs";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Posts() {
+  const { userId } = auth();
   // we are sorting, becuase vercel puts the last one to change at the end...
   const posts = await sql`SELECT * FROM posts ORDER BY id`;
 
@@ -12,7 +14,7 @@ export default async function Posts() {
     const title = formData.get("title");
     const content = formData.get("content");
 
-    await sql`INSERT INTO posts (title, content) VALUES (${title}, ${content})`;
+    await sql`INSERT INTO posts (title, content, user_id) VALUES (${title}, ${content}, ${userId})`;
 
     revalidatePath("/posts");
     // redirect("/posts"); // doesn't make sense here, because this is the page with the form
@@ -21,12 +23,15 @@ export default async function Posts() {
   return (
     <div>
       <h2>Posts</h2>
-      <form action={handleCreatePost}>
-        <h4>Add a new post</h4>
-        <input name="title" placeholder="Blog Title" />
-        <textarea name="content" placeholder="Blog content"></textarea>
-        <button>Submit</button>
-      </form>
+      {userId && (
+        <form action={handleCreatePost}>
+          <h4>Add a new post</h4>
+          <input name="title" placeholder="Blog Title" />
+          <textarea name="content" placeholder="Blog content"></textarea>
+          <button>Submit</button>
+        </form>
+      )}
+      {!userId && <p>Sign in to add posts</p>}
 
       {posts.rows.map((post) => {
         return (
