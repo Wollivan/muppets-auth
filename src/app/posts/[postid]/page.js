@@ -26,12 +26,15 @@ export default async function SinglePostPage({ params }) {
         <Link href={`/posts/${params.postid}/edit`}>Edit</Link>
       )}
 
-      <form action={handleAddComment}>
-        <h3>Add a comment</h3>
-        <input name="username" placeholder="Username" />
-        <textarea name="content" placeholder="Content"></textarea>
-        <button>Submit</button>
-      </form>
+      {userId && (
+        <form action={handleAddComment}>
+          <h3>Add a comment</h3>
+          <input name="username" placeholder="Username" />
+          <textarea name="content" placeholder="Content"></textarea>
+          <button>Submit</button>
+        </form>
+      )}
+      {!userId && <p>Sign in to add comments</p>}
 
       {comments.rows.map((comment) => {
         return (
