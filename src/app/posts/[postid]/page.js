@@ -14,7 +14,7 @@ export default async function SinglePostPage({ params }) {
     const username = formData.get("username");
     const content = formData.get("content");
 
-    await sql`INSERT INTO comments (username, content, post_id) VALUES (${username}, ${content}, ${params.postid})`;
+    await sql`INSERT INTO comments (username, content, post_id, user_id) VALUES (${username}, ${content}, ${params.postid}, ${userId})`;
     revalidatePath(`/posts/${params.postid}`);
   }
 
