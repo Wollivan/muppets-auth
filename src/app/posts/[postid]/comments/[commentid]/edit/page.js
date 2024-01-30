@@ -1,8 +1,10 @@
+import { auth } from "@clerk/nextjs";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export default async function EditComment({ params }) {
+  const { userId } = auth();
   const comment =
     await sql`SELECT * FROM comments WHERE id = ${params.commentid}`;
 
@@ -14,6 +16,10 @@ export default async function EditComment({ params }) {
     await sql`UPDATE comments SET username = ${username}, content = ${content} WHERE id = ${params.commentid}`;
     revalidatePath(`/posts/${params.postid}`);
     redirect(`/posts/${params.postid}`);
+  }
+
+  if (userId !== comment.user_id) {
+    return <p>404 not found (nuaghty)</p>;
   }
 
   return (
