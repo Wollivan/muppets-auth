@@ -18,7 +18,7 @@ export default async function EditComment({ params }) {
     redirect(`/posts/${params.postid}`);
   }
 
-  if (userId !== comment.user_id) {
+  if (userId !== comment.rows[0].user_id) {
     return <p>404 not found (nuaghty)</p>;
   }
 
